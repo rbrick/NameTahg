@@ -1,0 +1,4 @@
+name: NameTahg
+main: me.rbrickis.nametahg.NameTahgExample
+version: 1.0
+depend: [ProtocolLib]
