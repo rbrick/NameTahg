@@ -1,8 +1,9 @@
 package me.rbrickis.nametahg;
 
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
-import net.minecraft.util.com.mojang.authlib.GameProfile;
 import org.bukkit.entity.Player;
+
+import java.util.UUID;
 
 /**
  * Created by Ryan on 10/21/2014
@@ -18,7 +19,7 @@ public class WrappedNamedEntitySpawnPacket {
         try {
           this.packet = getPacketClass().getConstructor(getEntityHumanClass()).newInstance(ReflectionUtils.getHandle(player));
 
-            ReflectionUtils.setValue(packet, "b", new GameProfile(gameProfile.getUUID(), gameProfile.getName()));
+            ReflectionUtils.setValue(packet, "b", getGameProfileClass().getConstructor(UUID.class, String.class).newInstance(gameProfile.getUUID(), gameProfile.getName()));
 
         } catch (Exception ex) {
             ex.printStackTrace();
