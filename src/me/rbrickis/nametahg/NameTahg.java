@@ -12,6 +12,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
@@ -44,7 +46,7 @@ public class NameTahg {
     public void setTag(Player player, String name) {
         try {
 
-            for(Player players : Bukkit.getOnlinePlayers()) {
+            for(Player players : getOnlinePlayers()) {
                if(!players.equals(player))
                 ReflectionUtils.sendPacket(players, new WrappedNamedEntitySpawnPacket(player, new WrappedGameProfile(UUID.randomUUID(), name)).getPacket());
             }
@@ -66,7 +68,7 @@ public class NameTahg {
 
         // We could simply use broadcastPacket but we do not want to send the packet to the disguised player
 
-        for(Player players : Bukkit.getOnlinePlayers()) {
+        for(Player players : getOnlinePlayers()) {
            try {
                if(!players.equals(player)) {
                    protocolManager.sendServerPacket(players, container);
@@ -117,4 +119,36 @@ public class NameTahg {
     }
 
 
+    /**
+     * Gets a list of players currently online
+     * <p>
+     * This implementation includes a workaround for {@link org.bukkit.Bukkit#getOnlinePlayers()} returning an array in
+     * older releases of CraftBukkit, instead of a Collection in more recent releases. Essentially, this adds backwards
+     * compatibility with older versions of CraftBukkit without having to adjust much in your plugin.
+     * <p>
+     * It's ugly, but it works and provides backwards compatibility
+     *
+     * @return a list of all online players
+     *
+     * @author DSH105
+     * Credits to DSH105, taken from his plugin Commodus. I probably just could of done this myself by i am lazy....plus that documentation is OP!
+     */
+    public static List<Player> getOnlinePlayers() {
+        List<Player> onlinePlayers = new ArrayList<>();
+        try {
+            Method onlinePlayersMethod = Bukkit.class.getMethod("getOnlinePlayers");
+            if (onlinePlayersMethod.getReturnType().equals(Collection.class)) {
+                Collection<Player> playerCollection = (Collection<Player>) onlinePlayersMethod.invoke(null, new Object[0]);
+                if (playerCollection instanceof List) {
+                    onlinePlayers = (List<Player>) playerCollection;
+                } else {
+                    onlinePlayers = new ArrayList<>(playerCollection);
+                }
+            } else {
+                onlinePlayers = Arrays.asList((Player[]) onlinePlayersMethod.invoke(null, new Object[0]));
+            }
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ignored) {
+        }
+        return onlinePlayers;
+    }
 }
