@@ -118,7 +118,6 @@ public class NameTahg {
         return matcher.replaceAll("$1-$2-$3-$4-$5");
     }
 
-
     /**
      * Gets a list of players currently online
      * <p>
@@ -150,5 +149,10 @@ public class NameTahg {
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ignored) {
         }
         return onlinePlayers;
+    }
+
+
+    public ProtocolManager getProtocolManager() {
+        return protocolManager;
     }
 }

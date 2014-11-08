@@ -30,9 +30,9 @@ public class NameTahgMinified {
 
         public WrappedNamedEntitySpawnPacket(Player player, WrappedGameProfile gameProfile) {
             try {
-                this.packet = getPacketClass().getConstructor(getEntityHumanClass()).newInstance(ReflectionUtils.getHandle(player));
+                this.packet = getPacketClass().getConstructor(getEntityHumanClass()).newInstance(getHandle(player));
 
-                ReflectionUtils.setValue(packet, "b", getGameProfileClass().getConstructor(UUID.class, String.class).newInstance(gameProfile.getUUID(), gameProfile.getName()));
+                setValue(packet, "b", getGameProfileClass().getConstructor(UUID.class, String.class).newInstance(gameProfile.getUUID(), gameProfile.getName()));
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -41,11 +41,11 @@ public class NameTahgMinified {
         }
 
         public Class<?> getPacketClass() {
-            return ReflectionUtils.getCraftClass("PacketPlayOutNamedEntitySpawn");
+            return getMinecraftClass("PacketPlayOutNamedEntitySpawn");
         }
 
         public Class<?> getEntityHumanClass() {
-            return ReflectionUtils.getCraftClass("EntityHuman");
+            return getMinecraftClass("EntityHuman");
         }
 
         public Class<?> getGameProfileClass() {
@@ -219,5 +219,38 @@ public class NameTahgMinified {
             }
         }
         return null;
+    }
+
+    private static String VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+
+    private static String NMS = "net.minecraft.server";
+
+    private static String OBC = "org.bukkit.craftbukkit";
+
+
+
+    public static Class<?> getCraftBukkitClass(String className) {
+        try {
+            return Class.forName(OBC + "."  + VERSION + "." + className);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Class<?> getMinecraftClass(String className) {
+        try {
+            return Class.forName(NMS + "." + VERSION + "." + className);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void setValue(Object instance, String fieldName, Object value)
+            throws Exception {
+        Field field = instance.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(instance, value);
     }
 }
